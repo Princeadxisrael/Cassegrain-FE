@@ -1,35 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useToast } from "@/components/Toast";
+import { connection, program } from "@/libs/program/connector";
+import { AnchorProvider } from "@coral-xyz/anchor";
+import { manufacturer } from "@/libs/db/manufacturer";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export default function SignUpPage() {
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
     company: "",
     role: "",
-    phone: "",
+    certifications: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const router = useRouter();
+  const wallet = useWallet();
 
   const roles = [
     "Manufacturer",
-    "Supplier",
     "Distributor",
     "Retailer",
-    "Quality Assurance",
-    "Logistics Manager",
-    "Compliance Officer",
-    "Other",
+    "LogisticsProvider",
+    "QualityInspector",
+    "Consumer",
   ];
+  useEffect(() => {
+    setTimeout(() => {
+      if (wallet.disconnecting) {
+        window.location.href = "/";
+      }
+    }, 1000);
+
+    if (wallet.publicKey) {
+      const checkUser = async () => {
+        const provider = new AnchorProvider(connection, wallet, {
+          commitment: "confirmed",
+        });
+        const programClass = program(provider);
+        const user = await manufacturer.manufacturerDetails(
+          wallet.publicKey,
+          programClass
+        );
+
+        if (user) {
+          addToast("You already have an account", "error");
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 1000);
+        }
+      };
+      checkUser();
+    }
+  }, [wallet.disconnecting, wallet.publicKey, wallet, addToast]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -46,30 +73,38 @@ export default function SignUpPage() {
     setIsLoading(true);
     setError("");
 
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
     if (!acceptTerms) {
-      setError("Please accept the terms and conditions");
-      setIsLoading(false);
+      addToast("Please accept the terms and conditions", "error");
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
       return;
     }
 
     try {
       // TODO: Implement Firebase authentication
-      console.log("Sign up attempt:", formData);
 
+      const provider = new AnchorProvider(connection, wallet, {
+        commitment: "confirmed",
+      });
+      const programClass = program(provider);
+      // Type assertion to fix the type mismatch
+      const user = await manufacturer.register(
+        {
+          pubkey: wallet?.publicKey,
+          companyName: formData.company,
+          certifications: formData.certifications,
+          role: formData.role,
+        },
+        programClass
+      );
+      console.log(user);
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // On success, redirect to dashboard or verification page
-      router.push("/dashboard");
     } catch {
-      setError("Registration failed. Please try again.");
+      addToast("Registration failed. Please try again.", "error");
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     } finally {
       setIsLoading(false);
     }
@@ -100,66 +135,6 @@ export default function SignUpPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Personal Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="firstName"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  First Name *
-                </label>
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  required
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                  placeholder="John"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="lastName"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Last Name *
-                </label>
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  required
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                  placeholder="Doe"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Email Address *
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                placeholder="john.doe@company.com"
-              />
-            </div>
-
             {/* Company Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -206,61 +181,23 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Phone Number
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                placeholder="+1 (555) 123-4567"
-              />
-            </div>
-
-            {/* Password */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="">
               <div>
                 <label
-                  htmlFor="password"
+                  htmlFor="company"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  Password *
+                  Certifications *
                 </label>
                 <input
-                  id="password"
-                  name="password"
-                  type="password"
+                  id="certifications"
+                  name="certifications"
+                  type="text"
                   required
-                  value={formData.password}
+                  value={formData.certifications}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                  placeholder="Create a strong password"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
-                  Confirm Password *
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-                  placeholder="Confirm your password"
+                  placeholder="Your Certifications"
                 />
               </div>
             </div>
@@ -311,7 +248,11 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="absolute top-4 right-4">
+            <WalletMultiButton />
+          </div>
+
+          {/* <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Already have an account?{" "}
               <Link
@@ -321,7 +262,7 @@ export default function SignUpPage() {
                 Sign in here
               </Link>
             </p>
-          </div>
+          </div> */}
         </div>
 
         {/* Footer */}

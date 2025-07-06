@@ -1,9 +1,54 @@
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { AnchorProvider } from "@coral-xyz/anchor";
+import { manufacturer } from "@/libs/db/manufacturer";
+import { connection, program } from "@/libs/program/connector";
+import { useToast } from "@/components/Toast";
 
 const Nav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const wallet = useWallet();
+  const { addToast } = useToast();
+
+  //check if the user is in the database
+  useEffect(() => {
+    const checkUser = async () => {
+      if (wallet.connected && wallet.publicKey) {
+        try {
+          const provider = new AnchorProvider(connection, wallet, {
+            commitment: "confirmed",
+          });
+          const programClass = program(provider); // Type assertion to fix the type mismatch
+          const user = await manufacturer.manufacturerDetails(
+            wallet.publicKey,
+            programClass
+          );
+          // Handle the user data as needed
+          if (!user) {
+            addToast(
+              "Welcome! Please complete your manufacturer registration.",
+              "info"
+            );
+            setTimeout(() => {
+              window.location.href = "/sign-up";
+            }, 1000);
+          } else {
+            addToast(`Welcome back, ${user.companyName}!`, "success");
+            setTimeout(() => {
+              window.location.href = "/dashboard";
+            }, 1000);
+          }
+        } catch (error) {
+          console.error("Error checking user:", error);
+          addToast("Failed to load user data. Please try again.", "error");
+        }
+      }
+    };
+
+    checkUser();
+  }, [wallet, addToast]);
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
@@ -45,13 +90,29 @@ const Nav = () => {
             >
               Verify Product
             </Link>
-            <Link
-              href="#"
-              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-            >
-              {/* View */}
-              <WalletMultiButton />
-            </Link>
+            <div className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+              {wallet.connected ? (
+                <div className="flex items-center space-x-4">
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                  <div
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                    onClick={() => {
+                      wallet.disconnect();
+                      window.location.href = "/";
+                    }}
+                  >
+                    LogOut
+                  </div>
+                </div>
+              ) : (
+                <WalletMultiButton />
+              )}
+            </div>
           </div>
 
           {/* Mobile menu button */}

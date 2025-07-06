@@ -1,0 +1,1944 @@
+{
+  "address": "4FtfWh17cN7e8BReenNy9o7PjyvtY7HwFQChqdscmay5",
+  "metadata": {
+    "name": "cassegrain",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "create_event",
+      "discriminator": [
+        49,
+        219,
+        29,
+        203,
+        22,
+        98,
+        100,
+        87
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority"
+        },
+        {
+          "name": "events",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  118,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "event_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "product_batch",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  99,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "batch_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cassegrain_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "manufacturer",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  117,
+                  102,
+                  97,
+                  99,
+                  116,
+                  117,
+                  114,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "batch_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "event_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "event_type",
+          "type": {
+            "defined": {
+              "name": "EventType"
+            }
+          }
+        },
+        {
+          "name": "metadata_ipfs",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "order_status",
+          "type": {
+            "defined": {
+              "name": "OrderStatus"
+            }
+          }
+        },
+        {
+          "name": "previous_event",
+          "type": {
+            "option": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "delegate_product",
+      "docs": [
+        "delegate event",
+        ""
+      ],
+      "discriminator": [
+        53,
+        136,
+        126,
+        7,
+        213,
+        30,
+        78,
+        8
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "buffer_product_batch",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  102,
+                  102,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "product_batch"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                71,
+                80,
+                52,
+                17,
+                6,
+                241,
+                160,
+                106,
+                245,
+                171,
+                89,
+                43,
+                26,
+                124,
+                65,
+                131,
+                230,
+                236,
+                108,
+                83,
+                58,
+                90,
+                106,
+                22,
+                164,
+                60,
+                194,
+                24,
+                100,
+                255,
+                65,
+                126
+              ]
+            }
+          }
+        },
+        {
+          "name": "delegation_record_product_batch",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "product_batch"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "delegation_metadata_product_batch",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "product_batch"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "product_batch",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  99,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "batch_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buffer_product_event",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  102,
+                  102,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "product_event"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                71,
+                80,
+                52,
+                17,
+                6,
+                241,
+                160,
+                106,
+                245,
+                171,
+                89,
+                43,
+                26,
+                124,
+                65,
+                131,
+                230,
+                236,
+                108,
+                83,
+                58,
+                90,
+                106,
+                22,
+                164,
+                60,
+                194,
+                24,
+                100,
+                255,
+                65,
+                126
+              ]
+            }
+          }
+        },
+        {
+          "name": "delegation_record_product_event",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "product_event"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "delegation_metadata_product_event",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  108,
+                  101,
+                  103,
+                  97,
+                  116,
+                  105,
+                  111,
+                  110,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "product_event"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "delegation_program"
+            }
+          }
+        },
+        {
+          "name": "product_event",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  118,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "event_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner_program",
+          "address": "5oNsyMZ8XYiGibvzHtm8Y6QzBSpm3i5TrdnpLaevHTU9"
+        },
+        {
+          "name": "delegation_program",
+          "address": "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "batch_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "event_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "event_log",
+      "discriminator": [
+        74,
+        39,
+        133,
+        135,
+        44,
+        30,
+        114,
+        205
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "product_batch",
+          "docs": [
+            "The delegated Product Batch account (already on rollup)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  99,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "batch_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "product_event",
+          "docs": [
+            "The delegated Product Event account (already on rollup)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  118,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "event_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        },
+        {
+          "name": "magic_context",
+          "writable": true,
+          "address": "MagicContext1111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "batch_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "event_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "new_product_status",
+          "type": {
+            "option": {
+              "defined": {
+                "name": "ProductStatus"
+              }
+            }
+          }
+        },
+        {
+          "name": "new_order_status",
+          "type": {
+            "option": {
+              "defined": {
+                "name": "OrderStatus"
+              }
+            }
+          }
+        },
+        {
+          "name": "new_event_type",
+          "type": {
+            "option": {
+              "defined": {
+                "name": "EventType"
+              }
+            }
+          }
+        },
+        {
+          "name": "previous_event",
+          "type": {
+            "option": "pubkey"
+          }
+        },
+        {
+          "name": "next_event",
+          "type": {
+            "option": "pubkey"
+          }
+        },
+        {
+          "name": "metadata_ipfs",
+          "type": {
+            "option": "string"
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cassegrain_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "product_registration_fee",
+          "type": "u64"
+        },
+        {
+          "name": "max_events_per_product",
+          "type": "u32"
+        },
+        {
+          "name": "max_products_per_manufacturer",
+          "type": "u32"
+        },
+        {
+          "name": "min_event_interval",
+          "type": "i64"
+        },
+        {
+          "name": "max_batch_size",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "process_undelegation",
+      "discriminator": [
+        196,
+        28,
+        41,
+        206,
+        48,
+        37,
+        51,
+        167
+      ],
+      "accounts": [
+        {
+          "name": "base_account",
+          "writable": true
+        },
+        {
+          "name": "buffer"
+        },
+        {
+          "name": "payer",
+          "writable": true
+        },
+        {
+          "name": "system_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "account_seeds",
+          "type": {
+            "vec": "bytes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "register_manufacturer",
+      "discriminator": [
+        209,
+        17,
+        71,
+        213,
+        190,
+        230,
+        125,
+        136
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "CHECK : The authority of this program"
+          ]
+        },
+        {
+          "name": "cassegrain_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "manufacturer",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  117,
+                  102,
+                  97,
+                  99,
+                  116,
+                  117,
+                  114,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "company_name",
+          "type": "string"
+        },
+        {
+          "name": "business_type",
+          "type": {
+            "defined": {
+              "name": "BusinessType"
+            }
+          }
+        },
+        {
+          "name": "certifications",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "register_product_batch",
+      "docs": [
+        "Register a new product"
+      ],
+      "discriminator": [
+        137,
+        143,
+        114,
+        143,
+        15,
+        177,
+        24,
+        224
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority"
+        },
+        {
+          "name": "product_batch",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  99,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "batch_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "cassegrain_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "manufacturer",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  117,
+                  102,
+                  97,
+                  99,
+                  116,
+                  117,
+                  114,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "batch_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "metadata_ipfs",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "category",
+          "type": {
+            "defined": {
+              "name": "ProductCategory"
+            }
+          }
+        },
+        {
+          "name": "batch_size",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "undelegate_product",
+      "discriminator": [
+        192,
+        254,
+        102,
+        86,
+        40,
+        120,
+        104,
+        50
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "product_batch",
+          "docs": [
+            "The delegated Product Batch account (to be undelegated)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  116,
+                  99,
+                  104
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "batch_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "product_event",
+          "docs": [
+            "The delegated Product Event account (to be undelegated)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  118,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "event_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "magic_program",
+          "address": "Magic11111111111111111111111111111111111111"
+        },
+        {
+          "name": "magic_context",
+          "writable": true,
+          "address": "MagicContext1111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "batch_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "event_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "CassegrainConfig",
+      "discriminator": [
+        77,
+        87,
+        75,
+        202,
+        190,
+        218,
+        169,
+        123
+      ]
+    },
+    {
+      "name": "ManufacturerProfile",
+      "discriminator": [
+        247,
+        86,
+        163,
+        220,
+        39,
+        35,
+        134,
+        167
+      ]
+    },
+    {
+      "name": "ProductBatch",
+      "discriminator": [
+        209,
+        92,
+        19,
+        132,
+        8,
+        61,
+        217,
+        162
+      ]
+    },
+    {
+      "name": "ProductEvent",
+      "discriminator": [
+        186,
+        156,
+        3,
+        125,
+        9,
+        168,
+        30,
+        225
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "EventCreated",
+      "discriminator": [
+        59,
+        186,
+        199,
+        175,
+        242,
+        25,
+        238,
+        94
+      ]
+    },
+    {
+      "name": "StateUpdated",
+      "discriminator": [
+        187,
+        220,
+        147,
+        37,
+        52,
+        210,
+        78,
+        173
+      ]
+    },
+    {
+      "name": "SupplyChainCompleted",
+      "discriminator": [
+        235,
+        71,
+        51,
+        96,
+        122,
+        114,
+        251,
+        51
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized action"
+    },
+    {
+      "code": 6001,
+      "name": "ProgramPaused",
+      "msg": "Program is paused"
+    },
+    {
+      "code": 6002,
+      "name": "ProductNotFound",
+      "msg": "Product not found"
+    },
+    {
+      "code": 6003,
+      "name": "ManufacturerNotFound",
+      "msg": "Manufacturer not found"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidProductCategory",
+      "msg": "Invalid product category"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidProductStatus",
+      "msg": "Invalid product status"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidBusinessType",
+      "msg": "Invalid business type"
+    },
+    {
+      "code": 6007,
+      "name": "InsufficientRegistrationFee",
+      "msg": "Insufficient funds for registration fee"
+    },
+    {
+      "code": 6008,
+      "name": "EventLimitExceeded",
+      "msg": "Event limit exceeded for this product"
+    },
+    {
+      "code": 6009,
+      "name": "ProductAlreadyExists",
+      "msg": "Product already exists"
+    },
+    {
+      "code": 6010,
+      "name": "ManufacturerProfileExists",
+      "msg": "Manufacturer profile already exists"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidShippingAddressFormat",
+      "msg": "Invalid shipping address format"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidLocationData",
+      "msg": "Location data is invalid or incomplete"
+    },
+    {
+      "code": 6013,
+      "name": "ManufacturerNotVerified",
+      "msg": "Manufacturer not verified"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidBatchSize",
+      "msg": "Invalid batch size"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidIPFSHash",
+      "msg": "Invalid IPFS hash"
+    },
+    {
+      "code": 6016,
+      "name": "BatchNotFound",
+      "msg": "Batch not found"
+    },
+    {
+      "code": 6017,
+      "name": "EventTooFrequent",
+      "msg": "Events logged too frequently"
+    },
+    {
+      "code": 6018,
+      "name": "UnauthorizedQualityCheck",
+      "msg": "Unauthorized to perform quality checks"
+    },
+    {
+      "code": 6019,
+      "name": "UnauthorizedCustomsEvent",
+      "msg": "Unauthorized to log customs events"
+    },
+    {
+      "code": 6020,
+      "name": "EventAlreadyExists",
+      "msg": "Event already exists"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidBatchId",
+      "msg": "Invalid batch ID"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidEventId",
+      "msg": "Invalid event ID"
+    }
+  ],
+  "types": [
+    {
+      "name": "BusinessType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Manufacturer"
+          },
+          {
+            "name": "Distributor"
+          },
+          {
+            "name": "Retailer"
+          },
+          {
+            "name": "LogisticsProvider"
+          },
+          {
+            "name": "QualityInspector"
+          },
+          {
+            "name": "Consumer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CassegrainConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "is_paused",
+            "type": "bool"
+          },
+          {
+            "name": "product_registration_fee",
+            "type": "u64"
+          },
+          {
+            "name": "fee_treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "max_events_per_product",
+            "type": "u32"
+          },
+          {
+            "name": "max_products_per_manufacturer",
+            "type": "u32"
+          },
+          {
+            "name": "min_event_interval",
+            "docs": [
+              "Minimum time between events (seconds) - For spam protection"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "max_batch_size",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EventCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "event_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "batch_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "event_type",
+            "type": {
+              "defined": {
+                "name": "EventType"
+              }
+            }
+          },
+          {
+            "name": "actor",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EventType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Register"
+          },
+          {
+            "name": "Manufactured"
+          },
+          {
+            "name": "QualityCheck"
+          },
+          {
+            "name": "Packaged"
+          },
+          {
+            "name": "Shipped"
+          },
+          {
+            "name": "InTransit"
+          },
+          {
+            "name": "Delivered"
+          },
+          {
+            "name": "Sold"
+          },
+          {
+            "name": "Recalled"
+          },
+          {
+            "name": "QualityFailed"
+          },
+          {
+            "name": "OwnershipTransfer"
+          },
+          {
+            "name": "LocationUpdate"
+          },
+          {
+            "name": "CustomsCleared"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ManufacturerProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "string"
+          },
+          {
+            "name": "business_type",
+            "type": {
+              "defined": {
+                "name": "BusinessType"
+              }
+            }
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "certifications",
+            "type": "string"
+          },
+          {
+            "name": "is_verified",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Confirmed"
+          },
+          {
+            "name": "Processing"
+          },
+          {
+            "name": "Shipped"
+          },
+          {
+            "name": "InTransit"
+          },
+          {
+            "name": "Delivered"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Cancelled"
+          },
+          {
+            "name": "Disputed"
+          },
+          {
+            "name": "Refunded"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProductBatch",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "batch_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "manufacturer_name",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "ProductStatus"
+              }
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "last_updated",
+            "type": "i64"
+          },
+          {
+            "name": "metadata_ipfs",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "authenticity_verified",
+            "type": "bool"
+          },
+          {
+            "name": "category",
+            "type": {
+              "defined": {
+                "name": "ProductCategory"
+              }
+            }
+          },
+          {
+            "name": "manufacturer",
+            "type": "pubkey"
+          },
+          {
+            "name": "event_account",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "total_events",
+            "type": "u32"
+          },
+          {
+            "name": "batch_size",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProductCategory",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Electronics"
+          },
+          {
+            "name": "Automotive"
+          },
+          {
+            "name": "Pharmaceuticals"
+          },
+          {
+            "name": "Food"
+          },
+          {
+            "name": "Textiles"
+          },
+          {
+            "name": "Luxury"
+          },
+          {
+            "name": "Industrial"
+          },
+          {
+            "name": "Other"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProductEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "event_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "batch_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "product_event_type",
+            "type": {
+              "defined": {
+                "name": "EventType"
+              }
+            }
+          },
+          {
+            "name": "actor",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "metadata_ipfs",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "verification_status",
+            "type": {
+              "defined": {
+                "name": "VerificationStatus"
+              }
+            }
+          },
+          {
+            "name": "order_status",
+            "type": {
+              "defined": {
+                "name": "OrderStatus"
+              }
+            }
+          },
+          {
+            "name": "previous_event",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "next_event",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "bumps",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProductStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Registered"
+          },
+          {
+            "name": "Created"
+          },
+          {
+            "name": "Manufactured"
+          },
+          {
+            "name": "InTransit"
+          },
+          {
+            "name": "InWarehouse"
+          },
+          {
+            "name": "ForSale"
+          },
+          {
+            "name": "Sold"
+          },
+          {
+            "name": "Delivered"
+          },
+          {
+            "name": "Recalled"
+          },
+          {
+            "name": "Destroyed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StateUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "batch_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "event_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "updated_by",
+            "type": "pubkey"
+          },
+          {
+            "name": "batch_status",
+            "type": {
+              "defined": {
+                "name": "ProductStatus"
+              }
+            }
+          },
+          {
+            "name": "order_status",
+            "type": {
+              "defined": {
+                "name": "OrderStatus"
+              }
+            }
+          },
+          {
+            "name": "event_type",
+            "type": {
+              "defined": {
+                "name": "EventType"
+              }
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SupplyChainCompleted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "batch_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "event_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "final_status",
+            "type": {
+              "defined": {
+                "name": "ProductStatus"
+              }
+            }
+          },
+          {
+            "name": "final_order_status",
+            "type": {
+              "defined": {
+                "name": "OrderStatus"
+              }
+            }
+          },
+          {
+            "name": "verification_status",
+            "type": {
+              "defined": {
+                "name": "VerificationStatus"
+              }
+            }
+          },
+          {
+            "name": "total_events",
+            "type": "u32"
+          },
+          {
+            "name": "completed_by",
+            "type": "pubkey"
+          },
+          {
+            "name": "completion_timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VerificationStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Verified"
+          },
+          {
+            "name": "Failed"
+          },
+          {
+            "name": "Disputed"
+          }
+        ]
+      }
+    }
+  ]
+}
