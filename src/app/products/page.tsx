@@ -9,6 +9,11 @@ import { useToast } from "@/components/Toast";
 import { program } from "@/libs/program/connector";
 import { products as productsDB } from "@/libs/db/products";
 import { useWallet } from "@solana/wallet-adapter-react";
+import {
+  getProductCategory,
+  getStatusColor,
+  getStatusIcon,
+} from "@/utils/color";
 
 // Mock data
 const mockProducts = [
@@ -89,9 +94,17 @@ export default function ProductsPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         (product) =>
-          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.manufacturer.toLowerCase().includes(searchTerm.toLowerCase())
+          product?.account?.metadataIpfs
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          product?.account?.batchId
+            ?.toString()
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          product?.account?.manufacturer
+            ?.toBase58()
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
       );
     }
 
@@ -107,37 +120,6 @@ export default function ProductsPage() {
 
     setFilteredProducts(filtered);
   }, [searchTerm, statusFilter, categoryFilter, products]);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "verified":
-        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
-      case "flagged":
-        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "verified":
-        return "✓";
-      case "pending":
-        return "⏳";
-      case "flagged":
-        return "⚠️";
-      default:
-        return "•";
-    }
-  };
-
-  const handleAddProduct = (newProduct: any) => {
-    setProducts((prev) => [...prev, newProduct]);
-    setFilteredProducts((prev) => [...prev, newProduct]);
-  };
 
   return (
     <DashboardLayout>
@@ -304,7 +286,7 @@ export default function ProductsPage() {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                           <span className="text-white font-bold text-sm">
-                            {product?.account?.metadataIpfs.charAt(0)}
+                            {product?.account?.metadataIpfs?.charAt(0)}
                           </span>
                         </div>
                         <div className="ml-4">
@@ -339,13 +321,7 @@ export default function ProductsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {product?.account?.category?.electronics
-                        ? "Electronics"
-                        : product?.account?.category?.food
-                        ? "Food"
-                        : product?.account?.category?.pharmaceuticals
-                        ? "Pharmaceuticals"
-                        : "Other"}
+                      {getProductCategory(product?.account?.category)}
                     </td>
                     {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {product.location}
@@ -421,7 +397,6 @@ export default function ProductsPage() {
         provider={provider}
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onAddProduct={handleAddProduct}
       />
     </DashboardLayout>
   );

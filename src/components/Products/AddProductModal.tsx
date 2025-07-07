@@ -12,8 +12,7 @@ interface AddProductModalProps {
   setRefresh: (refresh: number) => void;
   provider: AnchorProvider;
   isOpen: boolean;
-  onClose: () => void;  
-  onAddProduct: (product: any) => void;
+  onClose: () => void;
 }
 
 const AddProductModal: React.FC<AddProductModalProps> = ({
@@ -22,7 +21,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   provider,
   isOpen,
   onClose,
-  onAddProduct,
 }) => {
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -65,27 +63,23 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
       return;
     }
 
-
     // Basic validation
     if (!formData.metadataIpfs || !formData.category || !formData.batchSize) {
       addToast("Please fill in all required fields", "error");
       return;
     }
 
-
     setIsLoading(true);
 
+    const productBatch = {
+      metadataIpfs: formData.metadataIpfs,
+      batchSize: parseInt(formData.batchSize),
+      user: publicKey,
+      productCategory: formData.category,
+    };
 
-      const productBatch = {
-        metadataIpfs: formData.metadataIpfs,
-        batchSize: parseInt(formData.batchSize),
-        user: publicKey,
-        productCategory: formData.category,
-      };
-
-
-try{
-      const programClass = program(provider); 
+    try {
+      const programClass = program(provider);
       const tx = await products.registerBatch(programClass, productBatch);
       // onAddProduct(newProduct);
 
@@ -115,17 +109,15 @@ try{
   if (!isOpen) return null;
 
   return (
-
-      <div className="fixed w-[100%]  top-0 left-0 bg-black/90 items-center justify-center min-h-screen px-10 pt-4 pb-20 text-center">
-        {/* Background overlay */}
-        {/* <div
+    <div className="fixed w-[100%]  top-0 left-0 bg-black/90 items-center justify-center min-h-screen px-10 pt-4 pb-20 text-center">
+      {/* Background overlay */}
+      {/* <div
           className="fixed inset-0 transition-opacity bg-black-500/40 "
           onClick={onClose}
         ></div> */}
 
-        {/* Modal */}
-        <div className="flex flex-row items-center justify-center min-h-screen px-10 pt-4 pb-20 text-center w-[100%]">
-
+      {/* Modal */}
+      <div className="flex flex-row items-center justify-center min-h-screen px-10 pt-4 pb-20 text-center w-[100%]">
         <div className="shadow inline-block w-full max-w-4xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-gray-800 shadow-xl rounded-2xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -233,11 +225,8 @@ try{
             </div>
           </form>
         </div>
-
-        </div>
-
       </div>
-
+    </div>
   );
 };
 

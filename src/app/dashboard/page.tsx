@@ -9,6 +9,14 @@ import { AnchorProvider } from "@coral-xyz/anchor";
 import { useToast } from "@/components/Toast";
 import { DashboardLayout } from "@/components/Dashboard";
 import UserItem from "@/libs/store/userstore";
+import AddProductModal from "@/components/Products/AddProductModal";
+import { useWalletProvider } from "@/contexts/WalletProviderContext";
+import { products as productsDB } from "@/libs/db/products";
+import {
+  getProductCategory,
+  getStatusColor,
+  getStatusIcon,
+} from "@/utils/color";
 
 // Mock data - replace with real API calls
 const mockData = {
@@ -23,65 +31,85 @@ const mockData = {
     pendingVerifications: 91,
     recentActivity: 23,
   },
-  recentProducts: [
-    {
-      id: "PRD-001",
-      name: "Premium Coffee Beans",
-      status: "verified",
-      date: "2024-01-15",
-      location: "Colombia",
-    },
-    {
-      id: "PRD-002",
-      name: "Organic Cotton T-Shirt",
-      status: "pending",
-      date: "2024-01-14",
-      location: "India",
-    },
-    {
-      id: "PRD-003",
-      name: "Electronic Components",
-      status: "verified",
-      date: "2024-01-13",
-      location: "Taiwan",
-    },
-    {
-      id: "PRD-004",
-      name: "Solar Panels",
-      status: "verified",
-      date: "2024-01-12",
-      location: "Germany",
-    },
-    {
-      id: "PRD-005",
-      name: "Pharmaceutical Supplies",
-      status: "flagged",
-      date: "2024-01-11",
-      location: "Switzerland",
-    },
-  ],
 };
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [refresh, setRefresh] = useState(0);
+  const { provider, connection, isConnected } = useWalletProvider();
+  const { publicKey } = useWallet();
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const { addToast } = useToast();
+  const [products, setProducts] = useState([]);
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    verifiedProducts: 0,
+    pendingVerifications: 0,
+    recentActivity: 0,
+  });
+
   useEffect(() => {
     // Simulate loading
     const timer = setTimeout(() => setIsLoading(false), 1000);
     return () => clearTimeout(timer);
   }, []);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "verified":
-        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
-      case "flagged":
-        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+  useEffect(() => {
+    const getProducts = async () => {
+      if (!isConnected || !provider || !connection) {
+        return;
+      }
+      const programClass = program(provider);
+      const productsItems = await productsDB.getProducts(programClass);
+      setFilteredProducts(
+        productsItems.filter(
+          (product) =>
+            product.account.manufacturer.toBase58() === publicKey?.toBase58()
+        )
+      );
+      setStats({
+        totalProducts: productsItems.length,
+        verifiedProducts: productsItems.filter(
+          (product) => product.account.authenticityVerified
+        ).length,
+        pendingVerifications: productsItems.filter(
+          (product) => !product.account.authenticityVerified
+        ).length,
+        recentActivity: productsItems.length,
+      });
+    };
+
+    getProducts();
+  }, [isConnected, addToast, provider, connection, publicKey, refresh]);
+
+  useEffect(() => {
+    let filtered = products;
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.manufacturer.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-  };
+
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((product) => product.status === statusFilter);
+    }
+
+    if (categoryFilter !== "all") {
+      filtered = filtered.filter(
+        (product) => product.category === categoryFilter
+      );
+    }
+
+    setFilteredProducts(filtered);
+  }, [searchTerm, statusFilter, categoryFilter, products]);
 
   if (isLoading) {
     return (
@@ -95,7 +123,7 @@ export default function DashboardPage() {
       </div>
     );
   }
-
+  console.log(filteredProducts);
   return (
     <DashboardLayout>
       {/* Stats Grid */}
@@ -122,7 +150,7 @@ export default function DashboardPage() {
                 Total Products
               </p>
               <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {mockData.stats.totalProducts.toLocaleString()}
+                {stats.totalProducts.toLocaleString()}
               </p>
             </div>
           </div>
@@ -150,7 +178,7 @@ export default function DashboardPage() {
                 Verified
               </p>
               <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {mockData.stats.verifiedProducts.toLocaleString()}
+                {stats.verifiedProducts.toLocaleString()}
               </p>
             </div>
           </div>
@@ -178,7 +206,7 @@ export default function DashboardPage() {
                 Pending
               </p>
               <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {mockData.stats.pendingVerifications}
+                {stats.pendingVerifications}
               </p>
             </div>
           </div>
@@ -206,7 +234,7 @@ export default function DashboardPage() {
                 Recent Activity
               </p>
               <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {mockData.stats.recentActivity}
+                {stats.recentActivity}
               </p>
             </div>
           </div>
@@ -311,10 +339,13 @@ export default function DashboardPage() {
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Location
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Date
+                  Created
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Actions
@@ -322,48 +353,115 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {mockData.recentProducts.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr
-                  key={product.id}
+                  key={product?.account?.batchId}
                   className="hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {product.name}
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">
+                          {product?.account?.metadataIpfs?.charAt(0)}
+                        </span>
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {product.id}
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          {product?.account?.metadataIpfs}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {/* {product?.publicKey?.toBase58()} */}
+                          {product?.publicKey?.toBase58()}
+                        </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                        product.status
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                        product?.account?.authenticityVerified
+                          ? "verified"
+                          : "pending"
                       )}`}
                     >
-                      {product.status}
+                      <span className="mr-1">
+                        {getStatusIcon(
+                          product?.account?.authenticityVerified
+                            ? "verified"
+                            : "pending"
+                        )}
+                      </span>
+                      {product?.account?.authenticityVerified
+                        ? "verified"
+                        : "pending"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {product.location}
+                    {getProductCategory(product?.account?.category)}
                   </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {product.location}
+                        </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(product.date).toLocaleDateString()}
+                    {new Date(
+                      product?.account?.createdAt.toNumber() * 1000
+                    ).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-blue-600 dark:text-blue-400 hover:text-blue-500 mr-3">
-                      View
-                    </button>
-                    <button className="text-gray-600 dark:text-gray-400 hover:text-gray-500">
-                      Edit
-                    </button>
+                    <div className="flex space-x-2">
+                      <Link
+                        href={`/products/${product?.publicKey?.toBase58()}`}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-500"
+                      >
+                        View
+                      </Link>
+                      <button className="text-gray-600 dark:text-gray-400 hover:text-gray-500">
+                        Edit
+                      </button>
+                      {product?.blockHash && (
+                        <span className="inline-flex items-center text-green-600 dark:text-green-400">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                          On-chain
+                        </span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+
+          {filteredProducts.length === 0 && (
+            <div className="text-center py-12">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                No products found
+              </h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Try adjusting your search criteria or add a new product.
+              </p>
+              <div className="mt-6">
+                <button
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  Add Product
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="px-6 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
           <Link
@@ -374,6 +472,14 @@ export default function DashboardPage() {
           </Link>
         </div>
       </div>
+
+      <AddProductModal
+        refresh={refresh}
+        setRefresh={setRefresh}
+        provider={provider}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
     </DashboardLayout>
   );
 }
