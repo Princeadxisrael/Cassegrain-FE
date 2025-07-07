@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/Dashboard";
+import { AddProductModal } from "@/components/Products";
 import { useWalletProvider } from "@/contexts/WalletProviderContext";
 import { useToast } from "@/components/Toast";
 import { program } from "@/libs/program/connector";
 import { products as productsDB } from "@/libs/db/products";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 // Mock data
 const mockProducts = [
@@ -47,32 +49,39 @@ const mockProducts = [
 export default function ProductsPage() {
   // const [products] = useState(mockProducts);
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState(mockProducts);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { addToast } = useToast();
+  const [refresh, setRefresh] = useState(0);
+  const { provider, connection, isConnected } = useWalletProvider();
+  const { publicKey } = useWallet();
+
   useEffect(() => {
     // Simulate loading
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
-
-  const { provider, connection, isConnected } = useWalletProvider();
 
   useEffect(() => {
     const getProducts = async () => {
       if (!isConnected || !provider || !connection) {
         return;
       }
-
       const programClass = program(provider);
       const productsItems = await productsDB.getProducts(programClass);
-      setProducts(productsItems);
+      setProducts(
+        productsItems.filter(
+          (product) =>
+            product.account.manufacturer.toBase58() === publicKey?.toBase58()
+        )
+      );
     };
 
     getProducts();
-  }, [isConnected, addToast, provider, connection]);
+  }, [isConnected, addToast, provider, connection, publicKey, refresh]);
 
   useEffect(() => {
     let filtered = products;
@@ -125,16 +134,44 @@ export default function ProductsPage() {
     }
   };
 
+  const handleAddProduct = (newProduct: any) => {
+    setProducts((prev) => [...prev, newProduct]);
+    setFilteredProducts((prev) => [...prev, newProduct]);
+  };
+
   return (
     <DashboardLayout>
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Product Management
-        </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Manage your supply chain products and track their verification status
-        </p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Product Management
+          </h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Manage your supply chain products and track their verification
+            status
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center"
+        >
+          <svg
+            className="h-5 w-5 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
+          </svg>
+          Add Product
+        </button>
       </div>
 
       {/* Filters */}
@@ -260,22 +297,24 @@ export default function ProductsPage() {
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredProducts.map((product) => (
                   <tr
-                    key={product.id}
+                    key={product?.account?.batchId}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                           <span className="text-white font-bold text-sm">
-                            {product.name.charAt(0)}
+                            {product?.publicKey?.toBase58().charAt(0)}
                           </span>
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {product.name}
+                            {product?.publicKey?.toBase58()}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {product.id} • {product.manufacturer}
+                            {/* {product?.publicKey?.toBase58()} */}
+                            {product?.account?.batchId.toString().slice(0, 6)}
+                            ...
                           </div>
                         </div>
                       </div>
@@ -283,28 +322,44 @@ export default function ProductsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                          product.status
+                          product?.account?.authenticityVerified
+                            ? "verified"
+                            : "pending"
                         )}`}
                       >
                         <span className="mr-1">
-                          {getStatusIcon(product.status)}
+                          {getStatusIcon(
+                            product?.account?.authenticityVerified
+                              ? "verified"
+                              : "pending"
+                          )}
                         </span>
-                        {product.status}
+                        {product?.account?.authenticityVerified
+                          ? "verified"
+                          : "pending"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {product.category}
+                      {product?.account?.category?.electronics
+                        ? "Electronics"
+                        : product?.account?.category?.food
+                        ? "Food"
+                        : product?.account?.category?.pharmaceuticals
+                        ? "Pharmaceuticals"
+                        : "Other"}
                     </td>
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {product.location}
+                        </td> */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {product.location}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(product.createdAt).toLocaleDateString()}
+                      {new Date(
+                        product?.account?.createdAt.toNumber() * 1000
+                      ).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <Link
-                          href={`/products/${product.id}`}
+                          href={`/products/${product?.id}`}
                           className="text-blue-600 dark:text-blue-400 hover:text-blue-500"
                         >
                           View
@@ -312,7 +367,7 @@ export default function ProductsPage() {
                         <button className="text-gray-600 dark:text-gray-400 hover:text-gray-500">
                           Edit
                         </button>
-                        {product.blockHash && (
+                        {product?.blockHash && (
                           <span className="inline-flex items-center text-green-600 dark:text-green-400">
                             <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                             On-chain
@@ -347,18 +402,28 @@ export default function ProductsPage() {
                   Try adjusting your search criteria or add a new product.
                 </p>
                 <div className="mt-6">
-                  <Link
-                    href="/products/add"
+                  <button
+                    onClick={() => setIsAddModalOpen(true)}
                     className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                   >
                     Add Product
-                  </Link>
+                  </button>
                 </div>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        refresh={refresh}
+        setRefresh={setRefresh}
+        provider={provider}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddProduct={handleAddProduct}
+      />
     </DashboardLayout>
   );
 }

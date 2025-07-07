@@ -3,6 +3,10 @@ import { Program } from "@coral-xyz/anchor";
 import type { Cassegrain } from "../program/cassegrain";
 
 const pdaGen = {
+  authority: () => {
+    const address = "J4s3z9VPTdKspam9LN5pbQkt5qM5iuK4KCFvdCK6QcjW";
+    return new PublicKey(address);
+  },
   config: () => {
     // const address = "H8V5uaaYwJuStC31J7oMKEYynoBa6g7nv6tVijiG27By";
     const address = "Bsj4HpH7J5NxHNK5yQQVFgs4DTC8hYs9z68QMPRfy26t";
@@ -22,7 +26,7 @@ const pdaGen = {
       program.programId
     )[0];
   },
-  batch: (batchId: string, program: Program<Cassegrain>) => {
+  batch: (batchId: Array<number>, program: Program<Cassegrain>) => {
     return PublicKey.findProgramAddressSync(
       [Buffer.from("batch"), Buffer.from(batchId)],
       program.programId
