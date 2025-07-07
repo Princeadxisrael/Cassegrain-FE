@@ -8,6 +8,7 @@ import { AnchorProvider } from "@coral-xyz/anchor";
 import { manufacturer } from "@/libs/db/manufacturer";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import UserItem from "@/libs/store/userstore";
 
 export default function SignUpPage() {
   const { addToast } = useToast();
@@ -49,6 +50,12 @@ export default function SignUpPage() {
 
         if (user) {
           addToast("You already have an account", "error");
+          UserItem.getState().setUser({
+            companyName: user.companyName,
+            role: user.businessType,
+            certifications: user.certifications,
+          });
+          UserItem.getState().createSession();
           setTimeout(() => {
             window.location.href = "/dashboard";
           }, 1000);

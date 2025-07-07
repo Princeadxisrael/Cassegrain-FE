@@ -6,6 +6,7 @@ import { AnchorProvider } from "@coral-xyz/anchor";
 import { manufacturer } from "@/libs/db/manufacturer";
 import { connection, program } from "@/libs/program/connector";
 import { useToast } from "@/components/Toast";
+import UserItem from "@/libs/store/userstore";
 
 const Nav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,6 +37,12 @@ const Nav = () => {
             }, 1000);
           } else {
             addToast(`Welcome back, ${user.companyName}!`, "success");
+            UserItem.getState().setUser({
+              companyName: user.companyName,
+              role: user.businessType,
+              certifications: user.certifications,
+            });
+            UserItem.getState().createSession();
             setTimeout(() => {
               window.location.href = "/dashboard";
             }, 1000);
