@@ -304,17 +304,16 @@ export default function ProductsPage() {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                           <span className="text-white font-bold text-sm">
-                            {product?.publicKey?.toBase58().charAt(0)}
+                            {product?.account?.metadataIpfs.charAt(0)}
                           </span>
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {product?.publicKey?.toBase58()}
+                            {product?.account?.metadataIpfs}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
                             {/* {product?.publicKey?.toBase58()} */}
-                            {product?.account?.batchId.toString().slice(0, 6)}
-                            ...
+                            {product?.publicKey?.toBase58()}
                           </div>
                         </div>
                       </div>
@@ -359,7 +358,7 @@ export default function ProductsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <Link
-                          href={`/products/${product?.id}`}
+                          href={`/products/${product?.publicKey?.toBase58()}`}
                           className="text-blue-600 dark:text-blue-400 hover:text-blue-500"
                         >
                           View
