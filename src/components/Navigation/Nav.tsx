@@ -172,18 +172,30 @@ const Nav = () => {
             >
               Verify Product
             </Link>
-            <Link
-              href="/login"
-              className="block px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-            >
-              Login
-            </Link>
-            <Link
-              href="/sign-up"
-              className="block px-3 py-2 bg-blue-600 text-white rounded-lg font-medium mx-3"
-            >
-              Get Started
-            </Link>
+
+            <div className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+              {wallet.connected ? (
+                <div className="flex items-center space-x-4">
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                  <div
+                    className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                    onClick={() => {
+                      wallet.disconnect();
+                      window.location.href = "/";
+                    }}
+                  >
+                    LogOut
+                  </div>
+                </div>
+              ) : (
+                <WalletMultiButton />
+              )}
+            </div>
           </div>
         )}
       </div>
