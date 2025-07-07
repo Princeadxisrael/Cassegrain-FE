@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/Dashboard";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 // Mock transaction data
 const mockTransactions = [
@@ -54,16 +55,12 @@ export default function TransactionsPage() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
 
+  const wallet = useWallet();
+
   useEffect(() => {
     // Simulate loading
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
-
-  const connectWallet = async () => {
-    // Simulate wallet connection
-    setWalletConnected(true);
-    setWalletAddress("9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM");
-  };
 
   const getTransactionTypeColor = (type: string) => {
     switch (type) {
@@ -103,23 +100,6 @@ export default function TransactionsPage() {
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           View your blockchain transactions and supply chain activities
         </p>
-        <div className="mt-4 flex items-center space-x-4">
-          {walletConnected ? (
-            <div className="flex items-center bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              <span className="text-sm font-mono text-green-700 dark:text-green-300">
-                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-              </span>
-            </div>
-          ) : (
-            <button
-              onClick={connectWallet}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium"
-            >
-              Connect Wallet
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Stats Cards */}

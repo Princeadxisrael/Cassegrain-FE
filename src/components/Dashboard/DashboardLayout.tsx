@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import UserItem from "@/libs/store/userstore";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useToast } from "../Toast";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -10,7 +12,56 @@ interface DashboardLayoutProps {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const user = UserItem.getState().user;
+  const [user, setUser] = useState<any>(null);
+
+  const wallet = useWallet();
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    const { session, user } = UserItem.getState().getSession();
+
+    if (!wallet.connected) {
+      return;
+    }
+
+    if (session && user) {
+      setUser(user);
+    } else {
+      addToast(
+        "Welcome! Please complete your manufacturer registration.",
+        "info"
+      );
+      setTimeout(() => {
+        window.location.href = "/sign-up";
+      }, 1000);
+    }
+  }, [wallet, addToast]);
+
+  // const checkUser = async () => {
+  //   if (wallet.connected) {
+  //     //check if the user is in the database
+
+  //     const programClass = program(provider); // Type assertion to fix the type mismatch
+  //     const user = await manufacturer.manufacturerDetails(
+  //       wallet.publicKey,
+  //       programClass
+  //     );
+  //     if (!user) {
+  //       addToast(
+  //         "Welcome! Please complete your manufacturer registration.",
+  //         "info"
+  //       );
+  //       setTimeout(() => {
+  //         window.location.href = "/sign-up";
+  //       }, 1000);
+  //     } else {
+  //       setUser(user);
+  //       console.log(user);
+  //       addToast(`Welcome back, ${user?.companyName}!`, "success");
+  //     }
+  //   }
+  // };
+  // checkUser();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
@@ -48,8 +99,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               </h1>
             </div>
 
-           
-
             <div className="flex flex-row items-center space-x-4 justify-between">
               <button className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                 <svg
@@ -73,12 +122,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Welcome back, {user?.companyName}
               </h1>
-        
             </div>
           </div>
         </div>
 
         {/* Page content */}
+
+        {/* 
+          To pass variables to children from a layout, you need to use React.cloneElement if children is a React element, 
+          or use a render prop pattern. Here's an example using cloneElement for a single React element child:
+        */}
         <main className="p-4  sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>

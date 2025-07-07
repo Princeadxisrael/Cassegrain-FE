@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/Dashboard";
+import { useWalletProvider } from "@/contexts/WalletProviderContext";
+import { useToast } from "@/components/Toast";
+import { program } from "@/libs/program/connector";
+import { products as productsDB } from "@/libs/db/products";
 
 // Mock data
 const mockProducts = [
@@ -41,17 +45,34 @@ const mockProducts = [
 ];
 
 export default function ProductsPage() {
-  const [products] = useState(mockProducts);
+  // const [products] = useState(mockProducts);
+  const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState(mockProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
-
+  const { addToast } = useToast();
   useEffect(() => {
     // Simulate loading
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
+
+  const { provider, connection, isConnected } = useWalletProvider();
+
+  useEffect(() => {
+    const getProducts = async () => {
+      if (!isConnected || !provider || !connection) {
+        return;
+      }
+
+      const programClass = program(provider);
+      const productsItems = await productsDB.getProducts(programClass);
+      setProducts(productsItems);
+    };
+
+    getProducts();
+  }, [isConnected, addToast, provider, connection]);
 
   useEffect(() => {
     let filtered = products;

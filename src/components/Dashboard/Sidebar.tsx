@@ -80,7 +80,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     window.location.href = "/";
     localStorage.clear();
     addToast("Logged out successfully", "success");
-    onClose();
   };
 
   const isActive = (href: string) => {

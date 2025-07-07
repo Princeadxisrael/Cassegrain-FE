@@ -8,6 +8,7 @@ import { connection, program } from "@/libs/program/connector";
 import { AnchorProvider } from "@coral-xyz/anchor";
 import { useToast } from "@/components/Toast";
 import { DashboardLayout } from "@/components/Dashboard";
+import UserItem from "@/libs/store/userstore";
 
 // Mock data - replace with real API calls
 const mockData = {
@@ -63,45 +64,11 @@ const mockData = {
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-
-  const wallet = useWallet();
-  const { addToast } = useToast();
   useEffect(() => {
     // Simulate loading
     const timer = setTimeout(() => setIsLoading(false), 1000);
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      if (wallet.connected) {
-        //check if the user is in the database
-        const provider = new AnchorProvider(connection, wallet, {
-          commitment: "confirmed",
-        });
-        const programClass = program(provider); // Type assertion to fix the type mismatch
-        const user = await manufacturer.manufacturerDetails(
-          wallet.publicKey,
-          programClass
-        );
-        if (!user) {
-          addToast(
-            "Welcome! Please complete your manufacturer registration.",
-            "info"
-          );
-          setTimeout(() => {
-            window.location.href = "/sign-up";
-          }, 1000);
-        } else {
-          setUser(user);
-          console.log(user);
-          addToast(`Welcome back, ${user?.companyName}!`, "success");
-        }
-      }
-    };
-    checkUser();
-  }, [wallet, addToast]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -24,15 +24,18 @@ export interface userWalletType {
   totalUsdBalance: number;
 }
 export interface Userstore {
-  session: {id: string, expiry: number} | null;
+  session: { id: string; expiry: number } | null;
   clearData: () => void;
   user: UserType | null;
-  setUser: (user: UserType| null) => void;
+  setUser: (user: UserType | null) => void;
   logout: () => void;
-  userWallet: userWalletType
+  userWallet: userWalletType;
   updateUserWallet: (userWallet: userWalletType) => void;
   createSession: () => void;
-
+  getSession: () => {
+    session: { id: string; expiry: number } | null;
+    user: UserType | null;
+  };
 }
 
 const UserItem = create(
@@ -60,7 +63,7 @@ const UserItem = create(
         if (get().session && get().session.expiry < new Date().getTime()) {
           set({ session: null });
         }
-        return get().session;
+        return { session: get().session, user: get().user };
       },
       clearData: () => {
         // Clear user state and wallet state
